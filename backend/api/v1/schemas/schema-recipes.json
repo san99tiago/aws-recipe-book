@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "description": "Email of the user",
+      "type": "string",
+      "format": "email"
+    },
+    "recipe_title": {
+      "description": "Title for the RECIPE element",
+      "type": "string"
+    },
+    "recipe_details": {
+      "description": "Details for the RECIPE element (max length 256 characters)",
+      "type": "string",
+      "maxLength": 256
+    },
+    "recipe_date": {
+      "description": "Date when the RECIPE was added",
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": ["user_email", "recipe_title", "recipe_date"],
+  "additionalProperties": false
+}

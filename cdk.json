@@ -1,0 +1,31 @@
+{
+  "app": "make clean && make install && python3 cdk/app.py",
+  "context": {
+    "main_resources_name": "recipe-book",
+    "tags": {
+      "Owner": "Santiago Garcia Arango",
+      "Source": "https://github.com/san99tiago/aws-recipe-book",
+      "Usage": "Advanced fullstack application deployed on AWS for recipe book solution"
+    },
+    "app_config": {
+      "dev": {
+        "deployment_environment": "dev",
+        "log_level": "DEBUG",
+        "table_name": "recipes-table-dev",
+        "api_gw_name": "recipes-dev",
+        "comment": "Auth can be cognito or api_key",
+        "auth": "cognito",
+        "hosted_zone_name": "dev.san99tiago.com"
+      },
+      "prod": {
+        "deployment_environment": "prod",
+        "log_level": "INFO",
+        "table_name": "recipes-table-prod",
+        "api_gw_name": "recipes-prod",
+        "comment": "Auth can be cognito or api_key",
+        "auth": "cognito",
+        "hosted_zone_name": "san99tiago.com"
+      }
+    }
+  }
+}
