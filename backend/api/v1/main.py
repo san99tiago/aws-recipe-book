@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 # Own imports
-from recipes_app.api.v1.routers import (
+from api.v1.routers import (
     recipes,
 )
 

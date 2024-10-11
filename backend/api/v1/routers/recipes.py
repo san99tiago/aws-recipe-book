@@ -7,11 +7,11 @@ from fastapi import APIRouter, Header
 from aws_lambda_powertools import Logger
 
 # Own imports
-from recipes_app.access_patterns.recipes import Recipes
-from recipes_app.api.v1.schemas.schema import Schema
-from recipes_app.api.v1.services.exceptions import SchemaValidationException
-from recipes_app.api.v1.services.validator import validate_json
-from recipes_app.common.enums import JSONSchemaType
+from access_patterns.recipes import Recipes
+from api.v1.schemas.schema import Schema
+from api.v1.services.exceptions import SchemaValidationException
+from api.v1.services.validator import validate_json
+from common.enums import JSONSchemaType
 
 
 logger = Logger(

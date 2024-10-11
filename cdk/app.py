@@ -10,6 +10,7 @@ import aws_cdk as cdk
 from helpers.add_tags import add_tags_to_app
 from stacks.cdk_backend_stack import BackendStack
 from stacks.cdk_frontend_stack import FrontendStack
+from stacks.cdk_chatbot_stack import ChatbotStack
 
 
 print("--> Deployment AWS configuration (safety first):")
@@ -37,18 +38,30 @@ backend_stack: BackendStack = BackendStack(
     description=f"Stack for {MAIN_RESOURCES_NAME} backend infrastructure in {DEPLOYMENT_ENVIRONMENT} environment",
 )
 
-if APP_CONFIG["auth"] == "cognito":
-    frontend_stack: FrontendStack = FrontendStack(
-        app,
-        f"{MAIN_RESOURCES_NAME}-frontend-{DEPLOYMENT_ENVIRONMENT}",
-        MAIN_RESOURCES_NAME,
-        APP_CONFIG,
-        env={
-            "account": os.environ.get("CDK_DEFAULT_ACCOUNT"),
-            "region": os.environ.get("CDK_DEFAULT_REGION"),
-        },
-        description=f"Stack for {MAIN_RESOURCES_NAME} frontend infrastructure in {DEPLOYMENT_ENVIRONMENT} environment",
-    )
+frontend_stack: FrontendStack = FrontendStack(
+    app,
+    f"{MAIN_RESOURCES_NAME}-frontend-{DEPLOYMENT_ENVIRONMENT}",
+    MAIN_RESOURCES_NAME,
+    APP_CONFIG,
+    env={
+        "account": os.environ.get("CDK_DEFAULT_ACCOUNT"),
+        "region": os.environ.get("CDK_DEFAULT_REGION"),
+    },
+    description=f"Stack for {MAIN_RESOURCES_NAME} frontend infrastructure in {DEPLOYMENT_ENVIRONMENT} environment",
+)
+
+chatbot_stack: ChatbotStack = ChatbotStack(
+    app,
+    f"{MAIN_RESOURCES_NAME}-chatbot-{DEPLOYMENT_ENVIRONMENT}",
+    MAIN_RESOURCES_NAME,
+    APP_CONFIG,
+    env={
+        "account": os.environ.get("CDK_DEFAULT_ACCOUNT"),
+        "region": os.environ.get("CDK_DEFAULT_REGION"),
+    },
+    description=f"Stack for {MAIN_RESOURCES_NAME} chatbot infrastructure in {DEPLOYMENT_ENVIRONMENT} environment",
+)
+
 
 add_tags_to_app(
     app,

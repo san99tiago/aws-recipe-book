@@ -301,6 +301,8 @@ class BackendStack(Stack):
 
         # API-Path: "/api/v1/recipes/{recipe_id}"
         recipes_resource.add_method("GET", api_lambda_integration_recipes)
+        recipes_resource.add_method("PATCH", api_lambda_integration_recipes)
+        recipes_resource.add_method("DELETE", api_lambda_integration_recipes)
 
         # API-Path: "/api/v1/docs"
         root_resource_docs.add_method("GET", api_lambda_integration_recipes)

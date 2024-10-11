@@ -8,7 +8,7 @@ from jsonschema._format import FormatChecker
 from aws_lambda_powertools import Logger
 
 # Own imports
-from recipes_app.common.logger import custom_logger
+from common.logger import custom_logger
 
 
 def validate_json(

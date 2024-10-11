@@ -9,10 +9,10 @@ from ulid import ULID
 from aws_lambda_powertools import Logger
 
 # Own imports
-from recipes_app.common.logger import custom_logger
-from recipes_app.helpers.dynamodb_helper import DynamoDBHelper
-from recipes_app.common.enums import DDBPrefixes
-from recipes_app.models.recipes import RecipeModel, RecipeModelUpdates
+from common.logger import custom_logger
+from helpers.dynamodb_helper import DynamoDBHelper
+from common.enums import DDBPrefixes
+from models.recipes import RecipeModel, RecipeModelUpdates
 
 # Initialize DynamoDB helper for item's abstraction
 DYNAMODB_TABLE = os.environ.get("DYNAMODB_TABLE")

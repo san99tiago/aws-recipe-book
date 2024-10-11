@@ -7,8 +7,8 @@ from typing import Optional
 from aws_lambda_powertools import Logger
 
 # Own imports
-from recipes_app.common.enums import JSONSchemaType
-from recipes_app.common.logger import custom_logger
+from common.enums import JSONSchemaType
+from common.logger import custom_logger
 
 
 # RECIPE: add capability of multiple schema versions in the future

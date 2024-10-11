@@ -140,7 +140,6 @@ class FrontendStack(Stack):
             "SecurityResponseHeadersPolicy",
             comment=f"Response Headers Policy for the s3 frontend for {self.main_resources_name}",
             response_headers_policy_name=f"ResponseHeadersPolicy-{self.main_resources_name}",
-            # TODO: Configure CORS!!!
             security_headers_behavior=aws_cloudfront.ResponseSecurityHeadersBehavior(
                 content_security_policy=aws_cloudfront.ResponseHeadersContentSecurityPolicy(
                     content_security_policy="default-src https:;", override=True
@@ -167,6 +166,21 @@ class FrontendStack(Stack):
                     override=True,
                 ),
             ),
+            # cors_behavior=aws_cloudfront.ResponseHeadersCorsBehavior(
+            #     # # TODO: Update to a more restrictive control
+            #     access_control_allow_origins=["*"],
+            #     access_control_allow_methods=[
+            #         "GET",
+            #         "HEAD",
+            #         "OPTIONS",
+            #         "PATCH",
+            #         "POST",
+            #         "DELETE",
+            #     ],
+            #     access_control_allow_headers=["*"],  # TODO: Restrict more if needed
+            #     access_control_allow_credentials=True,
+            #     origin_override=True,  # If CloudFront overrides origin CORS headers
+            # ),
         )
 
         self.cloudfront_distribution = aws_cloudfront.Distribution(
