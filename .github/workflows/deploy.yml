@@ -25,7 +25,6 @@ on:
 
 env:
   AWS_DEFAULT_REGION: us-east-1
-  AWS_DEFAULT_OUTPUT: json
   PYTHON_VERSION: "3.11"
 
 jobs:
@@ -62,3 +61,6 @@ jobs:
       python-version: ${{ github.env.PYTHON_VERSION}}
       deployment-environment: ${{ github.event.inputs.environment }}
       service: ${{ github.event.inputs.service }}
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
