@@ -1,6 +1,6 @@
 name: CDK Checkov Validations
 
-on: workflow_dispatch
+on: workflow_call
 
 jobs:
   cdk-checkov:
