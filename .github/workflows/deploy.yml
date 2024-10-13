@@ -40,12 +40,18 @@ jobs:
 
   code-quality:
     name: Check Code Formatting
-    uses: ./.github/actions/format-action@develop
-    with:
-      python-version: "3.11"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Format Action
+        uses: ./.github/actions/format-action@develop
+        with:
+          python-version: "3.11"
 
   unit-tests:
     name: Run Unit Tests
-    uses: ./.github/actions/unit-test-action@develop
-    with:
-      python-version: "3.11"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Unit Test Action
+        uses: ./.github/actions/unit-test-action@develop
+        with:
+          python-version: "3.11"
