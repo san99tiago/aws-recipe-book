@@ -25,7 +25,6 @@ on:
 
 env:
   AWS_DEFAULT_REGION: us-east-1
-  PYTHON_VERSION: "3.11"
 
 jobs:
   information:
@@ -44,14 +43,14 @@ jobs:
     needs: information
     uses: ./.github/workflows/format.yml
     with:
-      python-version: ${{ github.env.PYTHON_VERSION}}
+      python-version: "3.11"
 
   unit-tests:
     name: Run Unit Tests
     needs: information
     uses: ./.github/workflows/unit-tests.yml
     with:
-      python-version: ${{ github.env.PYTHON_VERSION}}
+      python-version: "3.11"
 
   cdk-synth-diff:
     name: CDK Synth & Diff
@@ -62,7 +61,7 @@ jobs:
       contents: read # This is required for actions/checkout
     uses: ./.github/workflows/cdk-synth-diff.yml
     with:
-      python-version: ${{ github.env.PYTHON_VERSION}}
+      python-version: "3.11"
       deployment-environment: ${{ github.event.inputs.environment }}
       service: ${{ github.event.inputs.service }}
 
@@ -80,6 +79,6 @@ jobs:
       contents: read # This is required for actions/checkout
     uses: ./.github/workflows/cdk-deploy.yml
     with:
-      python-version: ${{ github.env.PYTHON_VERSION}}
+      python-version: "3.11"
       deployment-environment: ${{ github.event.inputs.environment }}
       service: ${{ github.event.inputs.service }}

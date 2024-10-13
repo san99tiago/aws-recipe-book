@@ -81,6 +81,26 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.PROD_AWS_ACCOUNT_ID }}:role/${{ secrets.PROD_AWS_DEPLOY_ROLE }}
           role-session-name: GitHubActionsCICD
 
+      # NOTE: This can be enhanced by a dedicated workflow tha builds the app and then download the file (TODO)
+      - name: Build Frontend Application (if needed)
+        if: inputs.service == 'frontend'
+        run: |
+          # NOTE: These could be more optimized in the future... For now, dynamically fetch them one by one
+          VITE_BACKEND_API_URL=$(aws cloudformation describe-stacks --stack-name ${{ inputs.main-resources-name }}-backend-${{ inputs.deployment-environment }} --query "Stacks[0].Outputs[?OutputKey=='BackendAPIUrl'].OutputValue" --output text)
+          VITE_APP_USER_POOL_ID=$(aws cloudformation describe-stacks --stack-name ${{ inputs.main-resources-name }}-backend-${{ inputs.deployment-environment }} --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" --output text)
+          VITE_APP_CLIENT_ID=$(aws cloudformation describe-stacks --stack-name ${{ inputs.main-resources-name }}-backend-${{ inputs.deployment-environment }} --query "Stacks[0].Outputs[?OutputKey=='ClientId'].OutputValue" --output text)
+          VITE_COGNITO_HOSTED_UI_ENDPOINT=$(aws cloudformation describe-stacks --stack-name ${{ inputs.main-resources-name }}-backend-${{ inputs.deployment-environment }} --query "Stacks[0].Outputs[?OutputKey=='CognitoHostedUIEndpoint'].OutputValue" --output text)
+          # Replace backend variables to frontend
+          sed -i "s|REPLACE_ME_FOR_BACKEND_API_URL|$VITE_BACKEND_API_URL|g" frontend/src/GLOBAL_VARS.jsx
+          sed -i "s|REPLACE_ME_FOR_USER_POOL_ID|$VITE_APP_USER_POOL_ID|g" frontend/src/GLOBAL_VARS.jsx
+          sed -i "s|REPLACE_ME_FOR_CLIENT_ID|$VITE_APP_CLIENT_ID|g" frontend/src/GLOBAL_VARS.jsx
+          sed -i "s|REPLACE_ME_FOR_COGNITO_HOSTED_UI_ENDPOINT|$VITE_COGNITO_HOSTED_UI_ENDPOINT|g" frontend/src/GLOBAL_VARS.jsx
+          # Build frontend
+          cd frontend
+          npm install .
+          npm run build
+          cd ..
+
       - name: CDK Deploy
         run: |
           source .venv/bin/activate
