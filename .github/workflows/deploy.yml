@@ -1,4 +1,4 @@
-name: Deploy (PLACEHOLDER)
+run-name: Deploy ${{ github.event.inputs.service }} to ${{ github.event.inputs.environment }}
 
 on:
   workflow_dispatch:
@@ -27,13 +27,25 @@ env:
   AWS_DEFAULT_OUTPUT: json
 
 jobs:
-  placeholder:
-    name: Placeholder action
+  information:
+    name: Show Workflow Details
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Show details PLACEHOLDER
+      - name: Workflow Details
         run: |
-          echo "PLACEHOLDER to add GitHub Actions (TODO SANTI)"
           echo "Selected service: ${{ github.event.inputs.service }}"
           echo "Selected environment: ${{ github.event.inputs.environment }}"
+          echo "Running on branch reference: ${{ github.ref}}
+
+  code-quality:
+    name: Check Code Formatting
+    uses: ./.github/actions/format-action
+    with:
+      python-version: "3.11"
+
+  unit-tests:
+    name: Run Unit Tests
+    uses: ./.github/actions/unit-test-action
+    with:
+      python-version: "3.11"
