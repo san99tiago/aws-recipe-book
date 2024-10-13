@@ -324,39 +324,39 @@ class BackendStack(Stack):
 
         CfnOutput(
             self,
-            "BACKEND_API_URL",
+            "BackendAPIUrl",
             value=f"https://{self.api.rest_api_id}.execute-api.{self.region}.amazonaws.com/{self.deployment_environment}/api/v1",
-            description="BACKEND_API_URL",
+            description="BackendAPIUrl",
         )
 
         CfnOutput(
             self,
-            "FRONTEND_API_URL",
+            "FrontendAPIUrl",
             value=f"https://{DNS_SUBDOMAIN}{self.app_config['hosted_zone_name']}",
-            description="FRONTEND_API_URL",
+            description="FrontendAPIUrl",
         )
 
         CfnOutput(
             self,
-            "USER_POOL_ID",
+            "UserPoolId",
             value=self.cognito_user_pool.user_pool_id,
-            description="USER_POOL_ID",
+            description="UserPoolId",
         )
 
         CfnOutput(
             self,
-            "CLIENT_ID",
+            "ClientId",
             value=self.app_client.user_pool_client_id,
-            description="CLIENT_ID",
+            description="ClientId",
         )
 
         CfnOutput(
             self,
-            "COGNITO_HOSTED_UI_ENDPOINT",
+            "CognitoHostedUIEndpoint",
             value=self.user_pool_domain.sign_in_url(
                 self.app_client,
                 redirect_uri=self.redirect_uri,
                 sign_in_path="/oauth2/authorize",
             ),
-            description="COGNITO_HOSTED_UI_ENDPOINT",
+            description="CognitoHostedUIEndpoint",
         )
