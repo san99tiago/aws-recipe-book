@@ -1,0 +1,96 @@
+name: CDK Synth and Diff
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        type: string
+        description: "Python version to use"
+        required: false
+        default: "3.11"
+      service:
+        type: string
+        description: "Service to Deploy"
+        required: true
+      environment:
+        type: string
+        description: "Environment to Deploy"
+        required: true
+      region:
+        type: string
+        description: "AWS Region to deploy to"
+        required: false
+        default: "us-east-1"
+
+env:
+  AWS_DEFAULT_REGION: ${{ github.event.inputs.region }}
+  AWS_DEFAULT_OUTPUT: json
+  DEPLOYMENT_ENVIRONMENT: ${{ github.event.inputs.environment }}
+
+jobs:
+  cdk-synth-diff:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Install Poetry dependencies
+        run: poetry install --no-interaction
+
+      - name: Set up NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install CDK
+        run: npm install -g aws-cdk
+
+      # Same task with different secrets depending on the branch ref (dev vs prod deployments)
+      # Note: there might be better alternatives, but this is a way to deploy to both envs
+      - name: Configure AWS Credentials (DEV)
+        if: github.event.inputs.environment == 'dev'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.DEV_AWS_ACCOUNT_ID }}:role/${{ secrets.DEV_AWS_DEPLOY_ROLE }}
+          role-session-name: GitHubActionsCICD
+
+      - name: Configure AWS Credentials (PROD)
+        if: github.event.inputs.environment == 'prod'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.PROD_AWS_ACCOUNT_ID }}:role/${{ secrets.PROD_AWS_DEPLOY_ROLE }}
+          role-session-name: GitHubActionsCICD
+
+      - name: CDK Synth
+        run: |
+          source .venv/bin/activate
+          cdk synth
+
+      - name: CDK Diff
+        run: |
+          source .venv/bin/activate
+          cdk diff
+
+      - name: Archive CDK Synth results (no assets)
+        uses: actions/upload-artifact@v3
+        with:
+          name: cdk-synth-folder
+          path: |
+            ./cdk.out
+            !./cdk.out/asset.*
+          retention-days: 1

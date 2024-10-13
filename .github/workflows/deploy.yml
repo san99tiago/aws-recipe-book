@@ -26,6 +26,7 @@ on:
 env:
   AWS_DEFAULT_REGION: us-east-1
   AWS_DEFAULT_OUTPUT: json
+  PYTHON_VERSION: "3.11"
 
 jobs:
   information:
@@ -37,18 +38,27 @@ jobs:
         run: |
           echo "Selected service: ${{ github.event.inputs.service }}"
           echo "Selected environment: ${{ github.event.inputs.environment }}"
-          echo "Running on branch reference: ${{ github.ref}}"
+          echo "Running on branch reference: ${{ github.ref }}"
 
   code-quality:
     name: Check Code Formatting
     needs: information
     uses: ./.github/workflows/format.yml
     with:
-      python-version: "3.11"
+      python-version: ${{ github.env.PYTHON_VERSION}}
 
   unit-tests:
     name: Run Unit Tests
     needs: information
     uses: ./.github/workflows/unit-tests.yml
     with:
-      python-version: "3.11"
+      python-version: ${{ github.env.PYTHON_VERSION}}
+
+  cdk-synth-diff:
+    name: CDK Synth & Diff
+    needs: ["code-quality", "unit-tests"]
+    uses: ./.github/workflows/cdk-synth-diff.yml
+    with:
+      python-version: ${{ github.env.PYTHON_VERSION}}
+      deployment-environment: ${{ github.event.inputs.environment }}
+      service: ${{ github.event.inputs.service }}
