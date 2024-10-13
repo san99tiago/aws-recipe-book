@@ -166,25 +166,25 @@ class FrontendStack(Stack):
                     override=True,
                 ),
             ),
-            cors_behavior=aws_cloudfront.ResponseHeadersCorsBehavior(
-                # # TODO: Update to a more restrictive control
-                access_control_allow_origins=["*"],
-                access_control_allow_methods=[
-                    "GET",
-                    "HEAD",
-                    "POST",
-                    "PATCH",
-                    "OPTIONS",
-                    "DELETE",
-                ],
-                access_control_allow_headers=[
-                    "Content-Type",
-                    "Authorization",
-                    "x-api-key",
-                ],
-                access_control_allow_credentials=True,
-                origin_override=True,  # If CloudFront overrides origin CORS headers
-            ),
+            # cors_behavior=aws_cloudfront.ResponseHeadersCorsBehavior(
+            #     # # TODO: Update to a more restrictive control
+            #     access_control_allow_origins=["*"],
+            #     access_control_allow_methods=[
+            #         "GET",
+            #         "HEAD",
+            #         "POST",
+            #         "PATCH",
+            #         "OPTIONS",
+            #         "DELETE",
+            #     ],
+            #     access_control_allow_headers=[
+            #         "Content-Type",
+            #         "Authorization",
+            #         "x-api-key",
+            #     ],
+            #     access_control_allow_credentials=True,
+            #     origin_override=True,  # If CloudFront overrides origin CORS headers
+            # ),
         )
 
         self.cloudfront_distribution = aws_cloudfront.Distribution(
