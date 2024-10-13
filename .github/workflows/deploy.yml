@@ -41,12 +41,12 @@ jobs:
 
   code-quality:
     name: Check Code Formatting
-    uses: ./.github/workflows/format.yml@develop
+    uses: ./.github/workflows/format.yml
     with:
       python-version: "3.11"
 
   unit-tests:
     name: Run Unit Tests
-    uses: ./.github/workflows/unit-tests.yml@develop
+    uses: ./.github/workflows/unit-tests.yml
     with:
       python-version: "3.11"
