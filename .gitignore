@@ -16,6 +16,11 @@ docker
 # To ignore Lambda Layers files (like Python dependencies)
 modules
 
+# These 3 lines ensure that all README.md files (at all levels) get added
+*
+!*/
+!README.md
+
 
 ################################################################################
 # CDK IGNORES

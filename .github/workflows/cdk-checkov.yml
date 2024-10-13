@@ -1,0 +1,29 @@
+name: CDK Checkov Validations
+
+on: workflow_call
+
+jobs:
+  cdk-checkov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Dowload CDK Synth results
+        uses: actions/download-artifact@v3
+        with:
+          name: cdk-synth-folder
+          path: ./cdk-synth-output-folder
+
+      - name: Display files in the output folder
+        run: tree
+        working-directory: ./cdk-synth-output-folder
+
+      - name: Run Checkov action
+        id: checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: cdk-synth-output-folder/
+          framework: cloudformation
+          soft_fail: true # optional: do not return an error code if there are failed checks
+          skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
+          quiet: true # optional: display only failed checks
