@@ -42,14 +42,14 @@ jobs:
   code-quality:
     name: Check Code Formatting
     needs: information
-    uses: ./.github/workflows/nested/format.yml
+    uses: ./.github/workflows/format.yml
     with:
       python-version: ${{ github.env.PYTHON_VERSION}}
 
   unit-tests:
     name: Run Unit Tests
     needs: information
-    uses: ./.github/workflows/nested/unit-tests.yml
+    uses: ./.github/workflows/unit-tests.yml
     with:
       python-version: ${{ github.env.PYTHON_VERSION}}
 
@@ -59,7 +59,7 @@ jobs:
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read # This is required for actions/checkout
-    uses: ./.github/workflows/nested/cdk-synth-diff.yml
+    uses: ./.github/workflows/cdk-synth-diff.yml
     with:
       python-version: ${{ github.env.PYTHON_VERSION}}
       deployment-environment: ${{ github.event.inputs.environment }}
@@ -68,7 +68,7 @@ jobs:
   iac-checkov:
     name: CDK Checkov Validations
     needs: cdk-synth-diff
-    uses: ./.github/workflows/nested/cdk-synth-diff.yml
+    uses: ./.github/workflows/cdk-synth-diff.yml
     with:
       python-version: ${{ github.env.PYTHON_VERSION}}
       deployment-environment: ${{ github.event.inputs.environment }}
@@ -80,7 +80,7 @@ jobs:
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read # This is required for actions/checkout
-    uses: ./.github/workflows/nested/cdk-deploy.yml
+    uses: ./.github/workflows/cdk-deploy.yml
     with:
       python-version: ${{ github.env.PYTHON_VERSION}}
       deployment-environment: ${{ github.event.inputs.environment }}
