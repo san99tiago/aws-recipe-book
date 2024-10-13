@@ -172,12 +172,16 @@ class FrontendStack(Stack):
                 access_control_allow_methods=[
                     "GET",
                     "HEAD",
-                    "OPTIONS",
-                    "PATCH",
                     "POST",
+                    "PATCH",
+                    "OPTIONS",
                     "DELETE",
                 ],
-                access_control_allow_headers=["*"],  # TODO: Restrict more if needed
+                access_control_allow_headers=[
+                    "Content-Type",
+                    "Authorization",
+                    "x-api-key",
+                ],
                 access_control_allow_credentials=True,
                 origin_override=True,  # If CloudFront overrides origin CORS headers
             ),

@@ -233,6 +233,7 @@ class BackendStack(Stack):
                 allow_origins=aws_apigw.Cors.ALL_ORIGINS,
                 allow_methods=aws_apigw.Cors.ALL_METHODS,
                 allow_headers=["*"],
+                allow_credentials=True,
             ),
             endpoint_types=[aws_apigw.EndpointType.REGIONAL],
             cloud_watch_role=False,
