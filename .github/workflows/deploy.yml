@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "Selected service: ${{ github.event.inputs.service }}"
           echo "Selected environment: ${{ github.event.inputs.environment }}"
-          echo "Running on branch reference: ${{ github.ref}}
+          echo "Running on branch reference: ${{ github.ref}}"
 
   code-quality:
     name: Check Code Formatting
