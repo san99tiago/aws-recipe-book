@@ -1,5 +1,7 @@
 # :poultry_leg: AWS-RECIPE-BOOK :poultry_leg:
 
+![Latest CI/CD Action workflow](https://github.com/san99tiago/aws-recipe-book/actions/workflows/deploy.yml/badge.svg?branch=main)
+
 Advanced Serverless DEMO to illustrate a "recipe book" solution deployed on AWS with the following microservices/components:
 
 ## General Architecture
