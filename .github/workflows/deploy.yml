@@ -70,10 +70,6 @@ jobs:
     name: CDK Checkov Validations
     needs: cdk-synth-diff
     uses: ./.github/workflows/cdk-checkov.yml
-    with:
-      python-version: ${{ github.env.PYTHON_VERSION}}
-      deployment-environment: ${{ github.event.inputs.environment }}
-      service: ${{ github.event.inputs.service }}
 
   cdk-deploy:
     name: CDK Deploy
