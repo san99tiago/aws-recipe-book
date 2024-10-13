@@ -69,7 +69,7 @@ jobs:
   iac-checkov:
     name: CDK Checkov Validations
     needs: cdk-synth-diff
-    uses: ./.github/workflows/cdk-synth-diff.yml
+    uses: ./.github/workflows/cdk-checkov.yml
     with:
       python-version: ${{ github.env.PYTHON_VERSION}}
       deployment-environment: ${{ github.event.inputs.environment }}
