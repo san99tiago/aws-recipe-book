@@ -23,9 +23,9 @@ on:
         default: "us-east-1"
 
 env:
-  AWS_DEFAULT_REGION: ${{ github.event.inputs.region }}
+  AWS_DEFAULT_REGION: ${{ inputs.region }}
   AWS_DEFAULT_OUTPUT: json
-  DEPLOYMENT_ENVIRONMENT: ${{ github.event.inputs.deployment-environment }}
+  DEPLOYMENT_ENVIRONMENT: ${{ inputs.deployment-environment }}
 
 jobs:
   cdk-synth-diff:
@@ -61,7 +61,7 @@ jobs:
       # Same task with different secrets depending on the branch ref (dev vs prod deployments)
       # Note: there might be better alternatives, but this is a way to deploy to both envs
       - name: Configure AWS Credentials (DEV)
-        if: github.event.inputs.deployment-environment == 'dev'
+        if: inputs.deployment-environment == 'dev'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
@@ -69,7 +69,7 @@ jobs:
           role-session-name: GitHubActionsCICD
 
       - name: Configure AWS Credentials (PROD)
-        if: github.event.inputs.deployment-environment == 'prod'
+        if: inputs.deployment-environment == 'prod'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
