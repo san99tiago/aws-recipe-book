@@ -1,0 +1,39 @@
+name: Deploy (PLACEHOLDER)
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Choose Service to Deploy"
+        required: true
+        default: backend
+        type: choice
+        options:
+          - backend
+          - frontend
+          - chatbot
+
+      environment:
+        description: "Choose Environment to Deploy"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
+
+env:
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_DEFAULT_OUTPUT: json
+
+jobs:
+  placeholder:
+    name: Placeholder action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show details PLACEHOLDER
+        run: |
+          echo "PLACEHOLDER to add GitHub Actions (TODO SANTI)"
+          echo "Selected service: ${{ github.event.inputs.service }}"
+          echo "Selected environment: ${{ github.event.inputs.environment }}"
