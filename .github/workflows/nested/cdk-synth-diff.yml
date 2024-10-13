@@ -3,11 +3,6 @@ name: CDK Synth and Diff
 on:
   workflow_call:
     inputs:
-      python-version:
-        type: string
-        description: "Python version to use"
-        required: false
-        default: "3.11"
       service:
         type: string
         description: "Service to Deploy"
@@ -16,11 +11,21 @@ on:
         type: string
         description: "Environment to Deploy"
         required: true
+      python-version:
+        type: string
+        description: "Python version to use"
+        required: false
+        default: "3.11"
       region:
         type: string
         description: "AWS Region to deploy to"
         required: false
         default: "us-east-1"
+      main-resources-name:
+        type: string
+        description: "Main resources name for the app"
+        required: false
+        default: "recipe-book"
 
 env:
   AWS_DEFAULT_REGION: ${{ inputs.region }}
@@ -30,6 +35,7 @@ env:
 jobs:
   cdk-synth-diff:
     runs-on: ubuntu-latest
+    secrets: inherit
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read # This is required for actions/checkout
@@ -79,12 +85,12 @@ jobs:
       - name: CDK Synth
         run: |
           source .venv/bin/activate
-          cdk synth
+          cdk synth "${{ inputs.main-resources-name }}-${{ inputs.service }}-${{ inputs.deployment-environment }}"
 
       - name: CDK Diff
         run: |
           source .venv/bin/activate
-          cdk diff
+          cdk diff "${{ inputs.main-resources-name }}-${{ inputs.service }}-${{ inputs.deployment-environment }}"
 
       - name: Archive CDK Synth results (no assets)
         uses: actions/upload-artifact@v3
