@@ -57,6 +57,7 @@ jobs:
     name: CDK Synth & Diff
     needs: ["code-quality", "unit-tests"]
     uses: ./.github/workflows/cdk-synth-diff.yml
+    secrets: inherit
     with:
       python-version: ${{ github.env.PYTHON_VERSION}}
       deployment-environment: ${{ github.event.inputs.environment }}
