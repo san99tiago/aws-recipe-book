@@ -74,9 +74,15 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
+          # Enable deployment via CDK role
           - Effect: "Allow"
             Action: "sts:AssumeRole"
             Resource: "arn:aws:iam::*:role/cdk-*"
+          # Enable to read cloudformation outputs from other stacks
+          - Effect: "Allow"
+            Action:
+              - "cloudformation:DescribeStacks"
+            Resource: "*"
       Roles:
         - !Ref RoleGithubActions
 

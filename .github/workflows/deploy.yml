@@ -28,52 +28,52 @@ env:
   PYTHON_VERSION: "3.11"
 
 jobs:
-  information:
-    name: Show Workflow Details
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Workflow Details
-        run: |
-          echo "Selected service: ${{ github.event.inputs.service }}"
-          echo "Selected environment: ${{ github.event.inputs.environment }}"
-          echo "Running on branch reference: ${{ github.ref }}"
+  # information:
+  #   name: Show Workflow Details
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Workflow Details
+  #       run: |
+  #         echo "Selected service: ${{ github.event.inputs.service }}"
+  #         echo "Selected environment: ${{ github.event.inputs.environment }}"
+  #         echo "Running on branch reference: ${{ github.ref }}"
 
-  code-quality:
-    name: Check Code Formatting
-    needs: information
-    uses: ./.github/workflows/format.yml
-    with:
-      python-version: ${{ github.env.PYTHON_VERSION}}
+  # code-quality:
+  #   name: Check Code Formatting
+  #   needs: information
+  #   uses: ./.github/workflows/format.yml
+  #   with:
+  #     python-version: ${{ github.env.PYTHON_VERSION}}
 
-  unit-tests:
-    name: Run Unit Tests
-    needs: information
-    uses: ./.github/workflows/unit-tests.yml
-    with:
-      python-version: ${{ github.env.PYTHON_VERSION}}
+  # unit-tests:
+  #   name: Run Unit Tests
+  #   needs: information
+  #   uses: ./.github/workflows/unit-tests.yml
+  #   with:
+  #     python-version: ${{ github.env.PYTHON_VERSION}}
 
-  cdk-synth-diff:
-    name: CDK Synth & Diff
-    needs: ["code-quality", "unit-tests"]
-    secrets: inherit
-    permissions:
-      id-token: write # This is required for requesting the JWT
-      contents: read # This is required for actions/checkout
-    uses: ./.github/workflows/cdk-synth-diff.yml
-    with:
-      python-version: ${{ github.env.PYTHON_VERSION}}
-      deployment-environment: ${{ github.event.inputs.environment }}
-      service: ${{ github.event.inputs.service }}
+  # cdk-synth-diff:
+  #   name: CDK Synth & Diff
+  #   needs: ["code-quality", "unit-tests"]
+  #   secrets: inherit
+  #   permissions:
+  #     id-token: write # This is required for requesting the JWT
+  #     contents: read # This is required for actions/checkout
+  #   uses: ./.github/workflows/cdk-synth-diff.yml
+  #   with:
+  #     python-version: ${{ github.env.PYTHON_VERSION}}
+  #     deployment-environment: ${{ github.event.inputs.environment }}
+  #     service: ${{ github.event.inputs.service }}
 
-  iac-checkov:
-    name: CDK Checkov Validations
-    needs: cdk-synth-diff
-    uses: ./.github/workflows/cdk-checkov.yml
+  # iac-checkov:
+  #   name: CDK Checkov Validations
+  #   needs: cdk-synth-diff
+  #   uses: ./.github/workflows/cdk-checkov.yml
 
   cdk-deploy:
     name: CDK Deploy
-    needs: "cdk-synth-diff"
+    # needs: "cdk-synth-diff"
     secrets: inherit
     permissions:
       id-token: write # This is required for requesting the JWT

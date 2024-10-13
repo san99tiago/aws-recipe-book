@@ -81,6 +81,7 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.PROD_AWS_ACCOUNT_ID }}:role/${{ secrets.PROD_AWS_DEPLOY_ROLE }}
           role-session-name: GitHubActionsCICD
 
+      # NOTE: This can be enhanced by a dedicated workflow tha builds the app and then download the file (TODO)
       - name: Build Frontend Application (if needed)
         if: inputs.service == 'frontend'
         run: |
