@@ -16,7 +16,9 @@ stack: ChatbotStack = ChatbotStack(
     app_config={
         "deployment_environment": "test",
         "log_level": "DEBUG",
-        "chatbot_api_gw_name": "wpp-test",
+        "table_name": "table-test",
+        "api_gw_name": "apigw-test",
+        "chatbot_api_gw_name": "wpp-table-test",
         "chatbot_table_name": "aws-whatsapp-poc-test",
         "chatbot_secret_name": "test-secret",
         "meta_endpoint": "https://fake-endpoint.com",
@@ -40,7 +42,7 @@ def test_lambda_function_created():
     match = template.find_resources(
         type="AWS::Lambda::Function",
     )
-    assert len(match) == 3
+    assert len(match) == 4
 
 
 def test_api_gateway_created():
