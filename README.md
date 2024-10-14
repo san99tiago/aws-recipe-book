@@ -18,6 +18,16 @@ Advanced Serverless DEMO to illustrate a "recipe book" solution deployed on AWS 
 
 <img src="assets/aws-santi-architecture-cicd.png" width=90%> <br>
 
+<img src="assets/results_cicd_microservices_github_actions.png" width=90%> <br>
+
+## Demo
+
+Here is WhatsApp chatbot in action suggesting my own personal recipes:
+
+<img src="assets/results_frontend.png" width=90%> <br>
+
+<img src="assets/results_chatbot_whatsapp_00.png" width=90%> <br>
+
 ## Important Notes
 
 > This is NOT intended to be used in production grade workflows. It's an advanced DEMO to showcase an interesting workflow driven by 3 microservices deployed on AWS Cloud.
