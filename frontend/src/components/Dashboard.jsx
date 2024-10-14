@@ -14,7 +14,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState("");
   const [recipeItems, setRecipeItems] = useState([]);
-  const [newTitle, setNewTitle] = useState("");
+  const [newDetails, setNewDetails] = useState("");
 
   useEffect(() => {
     let user = userpool.getCurrentUser();
@@ -136,7 +136,7 @@ function Dashboard() {
   // **************************
   const createItem = async (event) => {
     event.preventDefault();
-    console.log(`Starting createItem with newTitle: ${newTitle}`);
+    console.log(`Starting createItem with newDetails: ${newDetails}`);
 
     let user = userpool.getCurrentUser();
     console.log(`user is: ${JSON.stringify(user)}`);
@@ -179,8 +179,8 @@ function Dashboard() {
         redirect: "follow",
         body: JSON.stringify({
           user_email: userEmailText,
-          recipe_title: newTitle,
-          recipe_details: "Default details",
+          recipe_title: newDetails,
+          recipe_details: newDetails,
           recipe_date: "2025-12-31",
         }),
       });
@@ -215,8 +215,8 @@ function Dashboard() {
                 id="newItem"
                 className="form-control"
                 aria-describedby="newItemHelp"
-                placeholder="Enter Item Title"
-                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="Enter Recipe"
+                onChange={(e) => setNewDetails(e.target.value)}
               />
               <small id="newItemHelp" className="form-text text-muted">
                 Add items to your RECIPE list!
@@ -238,7 +238,6 @@ function Dashboard() {
                     <label className="p mb-0">
                       <input type="checkbox" className="mr-2" />
                     </label>
-                    <h3>{item.recipe_title}</h3>
                     <p>{item.recipe_details}</p>
                     <button
                       className="btn btn-danger"

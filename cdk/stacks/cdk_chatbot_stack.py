@@ -4,14 +4,17 @@ import os
 # External imports
 from aws_cdk import (
     Duration,
+    aws_bedrock,
     aws_dynamodb,
     aws_lambda,
     aws_lambda_event_sources,
+    aws_iam,
     aws_logs,
     aws_secretsmanager,
+    aws_ssm,
+    aws_apigateway as aws_apigw,
     aws_stepfunctions as aws_sfn,
     aws_stepfunctions_tasks as aws_sfn_tasks,
-    aws_apigateway as aws_apigw,
     CfnOutput,
     RemovalPolicy,
     Stack,
@@ -59,6 +62,7 @@ class ChatbotStack(Stack):
         self.create_state_machine_tasks()
         self.create_state_machine_definition()
         self.create_state_machine()
+        self.create_bedrock_agent()
 
         # Generate CloudFormation outputs
         self.generate_cloudformation_outputs()
@@ -198,6 +202,62 @@ class ChatbotStack(Stack):
             ],
         )
         self.secret_chatbot.grant_read(self.lambda_state_machine_process_message)
+        self.dynamodb_table.grant_read_write_data(
+            self.lambda_state_machine_process_message
+        )
+        self.lambda_state_machine_process_message.role.add_managed_policy(
+            aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                "AmazonSSMReadOnlyAccess",
+            ),
+        )
+        self.lambda_state_machine_process_message.role.add_managed_policy(
+            aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                "AmazonBedrockFullAccess",
+            ),
+        )
+
+        # Lambda Function for the Bedrock Agent Group (fetch recipes)
+        bedrock_agent_lambda_role = aws_iam.Role(
+            self,
+            "BedrockAgentLambdaRole",
+            assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com"),
+            description="Role for Bedrock Agent Lambda",
+            managed_policies=[
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "service-role/AWSLambdaBasicExecutionRole",
+                ),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "AmazonBedrockFullAccess",
+                ),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "AmazonDynamoDBFullAccess",
+                ),
+            ],
+        )
+        self.lambda_fetch_recipes = aws_lambda.Function(
+            self,
+            "Lambda-AG-FetchRecipes",
+            runtime=aws_lambda.Runtime.PYTHON_3_11,
+            handler="bedrock_agent/lambda_function.lambda_handler",
+            function_name=f"{self.main_resources_name}-bedrock-action-group-recipes",
+            code=aws_lambda.Code.from_asset(PATH_TO_LAMBDA_FUNCTION_FOLDER),
+            timeout=Duration.seconds(60),
+            memory_size=512,
+            environment={
+                "ENVIRONMENT": self.app_config["deployment_environment"],
+                "LOG_LEVEL": self.app_config["log_level"],
+                "TABLE_NAME": self.app_config["table_name"],
+            },
+            role=bedrock_agent_lambda_role,
+        )
+
+        # Add permissions to the Lambda function resource policy. You use a resource-based policy to allow an AWS service to invoke your function.
+        self.lambda_fetch_recipes.add_permission(
+            "AllowBedrock",
+            principal=aws_iam.ServicePrincipal("bedrock.amazonaws.com"),
+            action="lambda:InvokeFunction",
+            source_arn=f"arn:aws:bedrock:{self.region}:{self.account}:agent/*",
+        )
 
     def create_dynamodb_streams(self) -> None:
         """
@@ -491,13 +551,116 @@ class ChatbotStack(Stack):
                 level=aws_sfn.LogLevel.ALL,
             ),
         )
-
         self.state_machine.grant_start_execution(self.lambda_trigger_state_machine)
 
         # Add additional environment variables to the Lambda Functions
         self.lambda_trigger_state_machine.add_environment(
             "STATE_MACHINE_ARN",
             self.state_machine.state_machine_arn,
+        )
+
+    def create_bedrock_agent(self) -> None:
+        """
+        Method to create the Bedrock Agent for the chatbot.
+        """
+
+        bedrock_agent_role = aws_iam.Role(
+            self,
+            "BedrockAgentRole",
+            assumed_by=aws_iam.ServicePrincipal("bedrock.amazonaws.com"),
+            description="Role for Bedrock Agent",
+            managed_policies=[
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "AmazonBedrockFullAccess",
+                ),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "AWSLambda_FullAccess",
+                ),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "CloudWatchLogsFullAccess",
+                ),
+            ],
+        )
+        # Add additional IAM actions for the bedrock agent
+        bedrock_agent_role.add_to_policy(
+            aws_iam.PolicyStatement(
+                effect=aws_iam.Effect.ALLOW,
+                actions=[
+                    "bedrock:InvokeModel",
+                    "bedrock:InvokeModelEndpoint",
+                    "bedrock:InvokeModelEndpointAsync",
+                ],
+                resources=["*"],
+            )
+        )
+
+        self.bedrock_agent = aws_bedrock.CfnAgent(
+            self,
+            "BedrockAgent",
+            agent_name=f"{self.main_resources_name}-agent",
+            agent_resource_role_arn=bedrock_agent_role.role_arn,
+            description="Agent for chatbot",
+            foundation_model="anthropic.claude-3-haiku-20240307-v1:0",
+            instruction="You are a specialized agent in giving back a recipe for the user based on the email and recipe_name. From these values, you will call the action group <FetchRecipe> and if a response is given, answer it explicitly by saying <The recipe is: ()>, otherwise answer <I do not have information for that recipe>.",
+            auto_prepare=True,
+            action_groups=[
+                aws_bedrock.CfnAgent.AgentActionGroupProperty(
+                    action_group_name="FetchRecipe",
+                    description="A function that is able to fetch recipes from the database from an email and recipe_name.",
+                    action_group_executor=aws_bedrock.CfnAgent.ActionGroupExecutorProperty(
+                        lambda_=self.lambda_fetch_recipes.function_arn,
+                    ),
+                    function_schema=aws_bedrock.CfnAgent.FunctionSchemaProperty(
+                        functions=[
+                            aws_bedrock.CfnAgent.FunctionProperty(
+                                name="FetchRecipe",
+                                # the properties below are optional
+                                description="Function to fetch the provided recipe based on the input email and recipe_name",
+                                parameters={
+                                    "email": aws_bedrock.CfnAgent.ParameterDetailProperty(
+                                        type="string",
+                                        description="Email of the user",
+                                        required=True,
+                                    ),
+                                    "recipe_name": aws_bedrock.CfnAgent.ParameterDetailProperty(
+                                        type="string",
+                                        description="Name of the recipe to fetch",
+                                        required=True,
+                                    ),
+                                },
+                            )
+                        ]
+                    ),
+                ),
+            ],
+        )
+
+        # Create an alias for the bedrock agent
+        cfn_agent_alias = aws_bedrock.CfnAgentAlias(
+            self,
+            "MyCfnAgentAlias",
+            agent_alias_name="bedrock-agent-alias",
+            agent_id=self.bedrock_agent.ref,
+            description="bedrock agent alias to simplify agent invocation",
+        )
+        cfn_agent_alias.add_dependency(self.bedrock_agent)
+
+        # This string will be as <AGENT_ID>|<AGENT_ALIAS_ID>
+        agent_alias_string = cfn_agent_alias.ref
+
+        # Create SSM Parameters for the agent alias to use in the Lambda functions
+        # Note: can not be added as Env-Vars due to circular dependency. Thus, SSM Params (decouple)
+        aws_ssm.StringParameter(
+            self,
+            "SSMAgentAlias",
+            parameter_name=f"/{self.deployment_environment}/recipe-book/bedrock-agent-alias-id-full-string",
+            string_value=agent_alias_string,
+        )
+        aws_ssm.StringParameter(
+            self,
+            "SSMAgentId",
+            parameter_name=f"/{self.deployment_environment}/recipe-book/bedrock-agent-id",
+            string_value=self.bedrock_agent.ref,
         )
 
     def generate_cloudformation_outputs(self) -> None:
