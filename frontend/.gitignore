@@ -1,7 +1,7 @@
-# These 3 lines ensure that all README.md files (at all levels) get added
-*
-!*/
-!README.md
+# # These 3 lines ensure that all README.md files (at all levels) get added
+# *
+# !*/
+# !README.md
 
 # Logs
 logs
